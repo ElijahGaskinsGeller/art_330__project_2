@@ -68,10 +68,12 @@
 
     const scene = new THREE.Scene();
     let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    let cameraStartPosition = {x: 0, y:0, z:0};
 
     let renderer = new THREE.WebGLRenderer();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
 
     document.body.appendChild( renderer.domElement );
 
@@ -79,20 +81,49 @@
 
     let loader = new FBXLoader();
 
-    loader.load("./models/test_model.fbx",
+    loader.load("./models/test_scene__1.fbx",
         function(object){
 
             console.log(object);
-            let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+            let material = new THREE.MeshPhongMaterial({color: 0x00ff00});
+
+            let directionalLight = new THREE.DirectionalLight(0xffffff);
+            directionalLight.position.z = 90;
+            directionalLight.castShadow = true;
+            // let ambientLight = new THREE.AmbientLight(0xffffff, .5);
+            let ambientLight = new THREE.AmbientLight(0xffffff, .5);
+            scene.add(ambientLight);
+            scene.add(directionalLight);
+
 
             for(let i = 0; i < object.children.length; i++){
 
-                object.children[i].material = material;
+                let currentObject = object.children[i];
+                let currentMaterial = new THREE.MeshPhongMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())});
+
+                //TODO: change to "camera_position"
+                if(currentObject.name == "Cube004"){
+
+                    cameraStartPosition = currentObject.position;
+
+                    // camera.position.x = currentObject.position.x;
+                    // camera.position.y = currentObject.position.y;
+                    // camera.position.z = currentObject.position.z + 100;
+
+                    console.log("here");
+                }
+
+                currentObject.material = currentMaterial;
+                currentObject.receiveShadow = true;
+                currentObject.scale.x = 1;
+                currentObject.scale.y = 1;
+                currentObject.scale.z = 1;
                 // scene.add(object.children[i]);
 
             }
 
             scene.add(object);
+            scroll();
 
         }
     );
@@ -113,7 +144,15 @@
 
     function scroll(){
         let scrollAmount = 400;
-        camera.position.y = -(scrollAmount*WindowScrollNormalPosition() - scrollAmount/2);
+        // camera.position.y = -(scrollAmount*WindowScrollNormalPosition() - scrollAmount/2);
+        camera.position.x = cameraStartPosition.x;
+        camera.position.y = cameraStartPosition.y + lerp(10, 1, WindowScrollNormalPosition());
+        // camera.position.y = cameraStartPosition.y;
+        camera.position.z = 16;
+        // camera.position.z = lerp(6000, -6000, WindowScrollNormalPosition());
+
+        console.log(camera.position);
+
     }
 
 
