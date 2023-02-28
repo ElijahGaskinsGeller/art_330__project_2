@@ -8,58 +8,6 @@
 
 <body style="margin: 0; padding: 0; height: 500vh;">
 
-<!--<canvas id="c" width="1920px" height="1080px" style="position: fixed; width: 100%; height: 100%;"></canvas>-->
-
-<script type="x-shader/x-vertex" id="vertexshader">
-
-			attribute float size;
-			attribute float opacity;
-
-			out float vOpacity;
-
-
-			void main() {
-
-                vOpacity = opacity;
-
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-				gl_PointSize = size * ( 300.0 / -mvPosition.z );
-
-				gl_Position = projectionMatrix * mvPosition;
-
-			}
-
-
-
-
-
-
-
-</script>
-
-<script type="x-shader/x-fragment" id="fragmentshader">
-
-			uniform sampler2D pointTexture;
-
-			in float vOpacity;
-
-			void main() {
-
-				gl_FragColor = vec4( 1.0, 1.0, 1.0 , vOpacity );
-
-				gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-
-			}
-
-
-
-
-
-
-
-</script>
-
 <script type="module">
 
 
@@ -72,6 +20,9 @@
 
     let renderer = new THREE.WebGLRenderer();
 
+    let turbine = null;
+
+
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
 
@@ -79,9 +30,11 @@
 
     renderer.domElement.style = "position: fixed; width: 100%; height: 100%;";
 
+
+
     let loader = new FBXLoader();
 
-    loader.load("./models/test_scene__1.fbx",
+    loader.load("./models/test_scene__4.fbx",
         function(object){
 
             console.log(object);
@@ -90,7 +43,6 @@
             let directionalLight = new THREE.DirectionalLight(0xffffff);
             directionalLight.position.z = 90;
             directionalLight.castShadow = true;
-            // let ambientLight = new THREE.AmbientLight(0xffffff, .5);
             let ambientLight = new THREE.AmbientLight(0xffffff, .5);
             scene.add(ambientLight);
             scene.add(directionalLight);
@@ -101,24 +53,42 @@
                 let currentObject = object.children[i];
                 let currentMaterial = new THREE.MeshPhongMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())});
 
+
+                if(currentObject.name == "maya"){
+                    console.log(currentObject);
+                    let textureLoader = new THREE.TextureLoader();
+
+                    textureLoader.load("./models/maya.png",
+                        function (texture) {
+                            let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                            textureMaterial.transparent = true;
+                            console.log(textureMaterial);
+                            currentObject.material = textureMaterial;
+                        },
+                        undefined,
+                        function (err) {
+                            console.log(err);
+                        }
+
+                    );
+                }else if (currentObject.name == "roof_turbine"){
+                    turbine = currentObject
+                    currentObject.material = currentMaterial;
+                }else{
+                    currentObject.material = currentMaterial;
+                }
+
                 //TODO: change to "camera_position"
                 if(currentObject.name == "Cube004"){
 
                     cameraStartPosition = currentObject.position;
 
-                    // camera.position.x = currentObject.position.x;
-                    // camera.position.y = currentObject.position.y;
-                    // camera.position.z = currentObject.position.z + 100;
-
-                    console.log("here");
                 }
 
-                currentObject.material = currentMaterial;
                 currentObject.receiveShadow = true;
                 currentObject.scale.x = 1;
                 currentObject.scale.y = 1;
                 currentObject.scale.z = 1;
-                // scene.add(object.children[i]);
 
             }
 
@@ -128,10 +98,6 @@
         }
     );
 
-    // const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    // const cube = new THREE.Mesh( geometry, material );
-    // scene.add( cube );
 
     camera.position.z = 500;
 
@@ -144,12 +110,9 @@
 
     function scroll(){
         let scrollAmount = 400;
-        // camera.position.y = -(scrollAmount*WindowScrollNormalPosition() - scrollAmount/2);
         camera.position.x = cameraStartPosition.x;
-        camera.position.y = cameraStartPosition.y + lerp(10, 1, WindowScrollNormalPosition());
-        // camera.position.y = cameraStartPosition.y;
+        camera.position.y = cameraStartPosition.y + lerp(12, 1, WindowScrollNormalPosition());
         camera.position.z = 16;
-        // camera.position.z = lerp(6000, -6000, WindowScrollNormalPosition());
 
         console.log(camera.position);
 
@@ -157,6 +120,9 @@
 
 
     function animate() {
+        if(turbine !== null){
+            // turbine.rotation.z += .01;
+        }
         requestAnimationFrame( animate );
         renderer.render( scene, camera );
     }
