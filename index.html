@@ -20,7 +20,10 @@
 
     let renderer = new THREE.WebGLRenderer();
 
+    let setTurbine = false;
     let turbine = null;
+    let turbineBase = null;
+    let cameraPositionMesh = null;
 
 
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -33,13 +36,15 @@
 
 
     let loader = new FBXLoader();
+    let textureLoader = new THREE.TextureLoader();
 
-    loader.load("./models/test_scene__4.fbx",
+    loader.load("./models/test_scene__15.fbx",
         function(object){
 
             console.log(object);
             let material = new THREE.MeshPhongMaterial({color: 0x00ff00});
 
+            //todo: remove lights
             let directionalLight = new THREE.DirectionalLight(0xffffff);
             directionalLight.position.z = 90;
             directionalLight.castShadow = true;
@@ -54,15 +59,14 @@
                 let currentMaterial = new THREE.MeshPhongMaterial({color: new THREE.Color(Math.random(),Math.random(),Math.random())});
 
 
-                if(currentObject.name == "maya"){
-                    console.log(currentObject);
-                    let textureLoader = new THREE.TextureLoader();
+                if(currentObject.name.includes("maya")){
+                    // console.log(currentObject);
 
                     textureLoader.load("./models/maya.png",
                         function (texture) {
                             let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
                             textureMaterial.transparent = true;
-                            console.log(textureMaterial);
+                            // console.log(textureMaterial);
                             currentObject.material = textureMaterial;
                         },
                         undefined,
@@ -71,16 +75,36 @@
                         }
 
                     );
-                }else if (currentObject.name == "roof_turbine"){
+                }else if (currentObject.name.includes("roof_turbine") && !currentObject.name.includes("roof_turbine_base")){
                     turbine = currentObject
                     currentObject.material = currentMaterial;
-                }else{
+                    console.log(turbine);
+                }else if(currentObject.name.includes("roof_turbine_base")){
+                    turbineBase = currentObject;
+                    currentObject.material = currentMaterial;
+                    console.log(turbineBase);
+                }else if(currentObject.name.includes("t_char")){
+                    textureLoader.load("./models/art_330__project_2__t__scene_piece.png", function (texture){
+                        let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                        textureMaterial.transparent = true;
+                        currentObject.material = textureMaterial;
+                    });
+                }else if(currentObject.name.includes("right_dragon_front")){
+                    textureLoader.load("./models/right_dragon_front.png", function (texture){
+                        let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                        textureMaterial.transparent = true;
+                        currentObject.material = textureMaterial;
+                    });
+                } else{
                     currentObject.material = currentMaterial;
                 }
 
                 //TODO: change to "camera_position"
-                if(currentObject.name == "Cube004"){
+                if(currentObject.name.includes("camera_position")){
 
+                    // console.log(currentObject);
+                    // cameraStartPosition = currentObject.geometry.boundingSphere.center;
+                    cameraPositionMesh = currentObject;
                     cameraStartPosition = currentObject.position;
 
                 }
@@ -92,14 +116,21 @@
 
             }
 
+
             scene.add(object);
             scroll();
 
         }
     );
 
+    textureLoader.load("./textures/test/istockphoto-618428174-170667a.jpg",function (texture){
 
-    camera.position.z = 500;
+        scene.background = texture;
+
+    });
+
+
+    // camera.position.z = 500;
 
     window.addEventListener("resize",function (e){
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -112,17 +143,34 @@
         let scrollAmount = 400;
         camera.position.x = cameraStartPosition.x;
         camera.position.y = cameraStartPosition.y + lerp(12, 1, WindowScrollNormalPosition());
+        // camera.position.y = cameraStartPosition.y+10;
         camera.position.z = 16;
 
-        console.log(camera.position);
+        // camera.rotation.y = lerp(0, Math.PI*2, WindowScrollNormalPosition());
+        // camera.position.z = cameraStartPosition.z+.5;
+
+        // console.log(camera.position);
 
     }
 
 
     function animate() {
         if(turbine !== null){
-            // turbine.rotation.z += .01;
+            turbine.rotation.z -= .01;
         }
+
+        //x: -19.058673858642578, y: 11.608338356018066, z: 12.382615566253662
+        if(!setTurbine && turbineBase !== null && turbineBase.geometry.boundingSphere !== null){
+            console.log(turbineBase.geometry.boundingSphere.center);
+            // turbine.position.set(turbineBase.geometry.boundingSphere.center);
+            turbine.position.x = -19;
+            turbine.position.y = 13;
+            turbine.position.z = -12.3;
+            turbineBase.visible = false;
+            setTurbine = true;
+        }
+
+
         requestAnimationFrame( animate );
         renderer.render( scene, camera );
     }
