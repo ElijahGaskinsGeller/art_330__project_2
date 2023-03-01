@@ -14,6 +14,17 @@
     import * as THREE from "./js/threejs/three.module.js";
     import {FBXLoader} from "./js/threejs/jsm/loaders/FBXLoader.js";
 
+    let loader = new FBXLoader();
+    let textureLoader = new THREE.TextureLoader();
+
+    function LoadTextureToMesh(texturePath, mesh, transparent){
+        textureLoader.load(texturePath, function (texture){
+            let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+            textureMaterial.transparent = transparent;
+            mesh.material = textureMaterial;
+        });
+    }
+
     const scene = new THREE.Scene();
     let camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
     let cameraStartPosition = {x: 0, y:0, z:0};
@@ -35,10 +46,8 @@
 
 
 
-    let loader = new FBXLoader();
-    let textureLoader = new THREE.TextureLoader();
 
-    loader.load("./models/test_scene__15.fbx",
+    loader.load("./models/test_scene__24.fbx",
         function(object){
 
             console.log(object);
@@ -62,19 +71,15 @@
                 if(currentObject.name.includes("maya")){
                     // console.log(currentObject);
 
-                    textureLoader.load("./models/maya.png",
-                        function (texture) {
-                            let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
-                            textureMaterial.transparent = true;
-                            // console.log(textureMaterial);
-                            currentObject.material = textureMaterial;
-                        },
-                        undefined,
-                        function (err) {
-                            console.log(err);
-                        }
+                    // textureLoader.load("./models/maya.png",
+                    //     function (texture) {
+                    //         let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                    //         textureMaterial.transparent = true;
+                    //         currentObject.material = textureMaterial;
+                    //     },
+                    // );
 
-                    );
+                    LoadTextureToMesh("./models/maya.png", currentObject, true);
                 }else if (currentObject.name.includes("roof_turbine") && !currentObject.name.includes("roof_turbine_base")){
                     turbine = currentObject
                     currentObject.material = currentMaterial;
@@ -84,17 +89,58 @@
                     currentObject.material = currentMaterial;
                     console.log(turbineBase);
                 }else if(currentObject.name.includes("t_char")){
-                    textureLoader.load("./models/art_330__project_2__t__scene_piece.png", function (texture){
-                        let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
-                        textureMaterial.transparent = true;
-                        currentObject.material = textureMaterial;
-                    });
+
+                    LoadTextureToMesh("./models/art_330__project_2__t__scene_piece.png", currentObject, true);
+
+                    // textureLoader.load("./models/art_330__project_2__t__scene_piece.png", function (texture){
+                    //     let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                    //     textureMaterial.transparent = true;
+                    //     currentObject.material = textureMaterial;
+                    // });
+
                 }else if(currentObject.name.includes("right_dragon_front")){
-                    textureLoader.load("./models/right_dragon_front.png", function (texture){
-                        let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
-                        textureMaterial.transparent = true;
-                        currentObject.material = textureMaterial;
-                    });
+
+                    LoadTextureToMesh("./models/right_dragon_front.png", currentObject, true);
+
+                    // textureLoader.load("./models/right_dragon_front.png", function (texture){
+                    //     let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                    //     textureMaterial.transparent = true;
+                    //     currentObject.material = textureMaterial;
+                    // });
+
+                }else if(currentObject.name.includes("right_dragon_tail")){
+
+                    LoadTextureToMesh("./models/right_dragon_back.png", currentObject, true);
+
+                    // textureLoader.load("./models/right_dragon_back.png", function (texture){
+                    //     let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+                    //     textureMaterial.transparent = true;
+                    //     currentObject.material = textureMaterial;
+                    // });
+
+                }else if(currentObject.name.includes("left_dragon")){
+
+                    LoadTextureToMesh("./models/left_dragon.png", currentObject, true);
+
+                }else if(currentObject.name.includes("bard")){
+
+                    LoadTextureToMesh("./models/bard.png", currentObject, true);
+
+                } else if(currentObject.name.includes("andy")){
+                    LoadTextureToMesh("./models/andy.png", currentObject, true);
+                }else if(currentObject.name.includes("floor_near")){
+                    LoadTextureToMesh("./models/floor_near.png", currentObject, false);
+                }else if(currentObject.name.includes("floor_far")){
+                    currentMaterial.color = new THREE.Color(0,0,0);
+                    currentObject.material = currentMaterial;
+                }else if(currentObject.name.includes("carport_pillar_near")){
+
+                    LoadTextureToMesh("./models/pillar_near.png", currentObject, false);
+
+                }else if(currentObject.name.includes("carport_pillar_far")){
+                    LoadTextureToMesh("./models/pillar_near.png", currentObject, false);
+                }else if(currentObject.name.includes("carport_base")){
+                    LoadTextureToMesh("./models/carport_base.png", currentObject, false);
                 } else{
                     currentObject.material = currentMaterial;
                 }
