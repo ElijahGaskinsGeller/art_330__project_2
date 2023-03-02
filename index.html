@@ -20,11 +20,6 @@
     function LoadTextureToMesh(texturePath, mesh, transparent){
         textureLoader.load(texturePath, function (texture){
             let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
-            if(transparent){
-                // texture.anisotropy = 0;
-                // texture.magFilter = THREE.NearestFilter;
-                // texture.minFilter = THREE.NearestFilter;
-            }
             textureMaterial.transparent = transparent;
             mesh.material = textureMaterial;
         });
@@ -52,7 +47,7 @@
 
 
 
-    loader.load("./models/test_scene__30.fbx",
+    loader.load("./models/test_scene__31.fbx",
         function(object){
 
             console.log(object);
@@ -87,12 +82,13 @@
                     LoadTextureToMesh("./models/maya.png", currentObject, true);
                 }else if (currentObject.name.includes("roof_turbine") && !currentObject.name.includes("roof_turbine_base")){
                     turbine = currentObject
+                    currentMaterial.color = new THREE.Color(140/255, 156/255, 155/255);
                     currentObject.material = currentMaterial;
-                    console.log(turbine);
+                    // console.log(turbine);
                 }else if(currentObject.name.includes("roof_turbine_base")){
                     turbineBase = currentObject;
                     currentObject.material = currentMaterial;
-                    console.log(turbineBase);
+                    // console.log(turbineBase);
                 }else if(currentObject.name.includes("t_char")){
 
                     LoadTextureToMesh("./models/art_330__project_2__t__scene_piece.png", currentObject, true);
@@ -156,11 +152,15 @@
                 }else if(currentObject.name.includes("wheel")){
                     currentMaterial.color = new THREE.Color(.05,.05,.1);
                     currentObject.material = currentMaterial;
-                }else if(currentObject.name.includes("car_body")){
+                }else if(currentObject.name.includes("car_body") && !currentObject.name.includes("wrecked_car_body")){
 
                     LoadTextureToMesh("car_body", currentObject, false);
 
-                }else{
+                }else if(currentObject.name.includes("wrecked_car_body")){
+
+                    LoadTextureToMesh("wrecked_car_body.png", currentObject, false);
+
+                } else{
                     currentObject.material = currentMaterial;
                 }
 
