@@ -20,6 +20,11 @@
     function LoadTextureToMesh(texturePath, mesh, transparent){
         textureLoader.load(texturePath, function (texture){
             let textureMaterial = new THREE.MeshBasicMaterial({map: texture});
+            if(transparent){
+                // texture.anisotropy = 0;
+                // texture.magFilter = THREE.NearestFilter;
+                // texture.minFilter = THREE.NearestFilter;
+            }
             textureMaterial.transparent = transparent;
             mesh.material = textureMaterial;
         });
@@ -47,14 +52,14 @@
 
 
 
-    loader.load("./models/test_scene__24.fbx",
+    loader.load("./models/test_scene__30.fbx",
         function(object){
 
             console.log(object);
             let material = new THREE.MeshPhongMaterial({color: 0x00ff00});
 
             //todo: remove lights
-            let directionalLight = new THREE.DirectionalLight(0xffffff);
+            let directionalLight = new THREE.DirectionalLight(0xffffff, .25);
             directionalLight.position.z = 90;
             directionalLight.castShadow = true;
             let ambientLight = new THREE.AmbientLight(0xffffff, .5);
@@ -141,7 +146,21 @@
                     LoadTextureToMesh("./models/pillar_near.png", currentObject, false);
                 }else if(currentObject.name.includes("carport_base")){
                     LoadTextureToMesh("./models/carport_base.png", currentObject, false);
-                } else{
+                }else if(currentObject.name.includes("carport_roof")){
+                    LoadTextureToMesh("./models/carport_top.png", currentObject, false);
+                }else if(currentObject.name.includes("building")){
+                    LoadTextureToMesh("./models/gas_station.png", currentObject, false);
+                }else if(currentObject.name.includes("door")){
+                currentMaterial.color = new THREE.Color(3/255, 177/255, 252/255);
+                    currentObject.material = currentMaterial;
+                }else if(currentObject.name.includes("wheel")){
+                    currentMaterial.color = new THREE.Color(.05,.05,.1);
+                    currentObject.material = currentMaterial;
+                }else if(currentObject.name.includes("car_body")){
+
+                    LoadTextureToMesh("car_body", currentObject, false);
+
+                }else{
                     currentObject.material = currentMaterial;
                 }
 
@@ -169,7 +188,7 @@
         }
     );
 
-    textureLoader.load("./textures/test/istockphoto-618428174-170667a.jpg",function (texture){
+    textureLoader.load("./textures/test/sky.png",function (texture){
 
         scene.background = texture;
 
